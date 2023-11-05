@@ -1,0 +1,83 @@
+auto.waitFor(); 
+app.launch("com.ss.android.ugc.aweme");
+sleep(3000);
+//
+var window = floaty.window(
+    <vertical>
+        <button id="swi" text="自动刷视频" />
+        <button id="li" text="一键三连" />
+        <button id="closeBtn" text="关闭悬浮窗" />
+    </vertical>
+);
+// 状态
+var state = 0;
+var Counter = 3;
+// 定义滑动的起始坐标和结束坐标
+var startX = 300;
+var startY = 1500;
+var endX = 300;
+var endY = 100;
+// 设置滑动时长
+var duration = 500; // 毫秒
+
+window.setPosition(device.width/2+100, 200);
+window.swi.on("click",()=>{
+    if(state == 0)
+    {
+        state = 1;
+        Counter = 3;
+        window.swi.setText("停止刷视频");
+    }
+    else {
+        state = 0;
+        window.swi.setText("开始刷视频");
+    }
+});
+window.li.on("click",()=>{
+    if(state == 0)
+    {
+        state = 2;
+    }
+})
+window.closeBtn.on("click", ()=>{
+    window.close();
+    exit();
+});
+
+
+
+setInterval(()=>{
+    if(state == 1)
+    {
+        Counter--;
+        if(Counter == 0)
+        {
+            // 执行滑动操作
+             swipe(startX, startY, endX, endY, duration);
+             Counter = 3;
+        }
+    
+    }
+
+    else if(state == 2)
+    {
+        click(1000, 1200);
+        state = 3;
+    }
+    else if(state == 3)
+    {
+        click(1000,1550);
+        state = 4;
+    }
+    else if(state == 4)
+    {
+        click(1000,1350);
+        state = 0;
+    }
+
+},1000);
+
+
+
+
+

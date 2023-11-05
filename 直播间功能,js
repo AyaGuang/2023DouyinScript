@@ -1,0 +1,191 @@
+//自动打开抖音APP并进入随机一个直播间
+app.launch("com.ss.android.ugc.aweme");
+sleep(3000); // 等待抖音APP启动
+swipe(400, 150, 1000, 150, 300);
+var liveTab = text("直播").findOne();
+click(liveTab.bounds().centerX(), liveTab.bounds().centerY());
+sleep(5000); // 等待直播页面加载
+click(500, 1000);
+// sleep(2000);
+//2 点赞悬浮窗
+var window = floaty.window(
+    <vertical>
+        <input id="input1" hint="请输入点赞次数" textSize="16sp" focusable="true"  />
+        <input id="input2" hint="请输入点赞间隔" textSize="16sp" focusable="true" />
+        <button id="ok" text="开始点赞"/>
+        <input id="input3" hint="请输入评论" textSize="16sp" focusable="true"  />
+        <input id="input4" hint="评论次数" textSize="16sp" focusable="true"  />
+        <button id="remarkBtn" text="开始评论"/>
+        <button id="reBtn" text="随机评论"/>
+        <button id="closeBtn" text="关闭悬浮窗" />
+    </vertical>
+);
+var dd = 0;
+var state = 0;
+var Static = 0;
+var likeCount = 100; // 设置点赞数量，根据需要修改
+var likeInterval = 200; // 设置点赞间隔（毫秒），根据需要修改
+var screenWidth = device.width; 
+var screenHeight = device.height;
+var centerX = screenWidth / 2;
+var centerY = screenHeight / 2;
+var commentText;
+var remarkCounter = 3;
+var commentText_List=["666","爱了爱了","主播加油","做的好棒","太强了"];//正能量语录
+
+window.setPosition(device.width/2+50, 50);
+
+// window.exitOnClose();
+
+toast("长按确定键可调整位置");
+
+window.input1.on("key", function(keyCode, event){
+    if(event.getAction() == event.ACTION_DOWN && keyCode == keys.back){
+        window.disableFocus();
+        event.consumed = true;
+    }
+});
+
+window.input1.on("touch_down", ()=>{
+    window.requestFocus();
+    window.input1.requestFocus();
+});
+
+window.input2.on("key", function(keyCode, event){
+    if(event.getAction() == event.ACTION_DOWN && keyCode == keys.back){
+        window.disableFocus();
+        event.consumed = true;
+    }
+});
+
+window.input2.on("touch_down", ()=>{
+    window.requestFocus();
+    window.input2.requestFocus();
+});
+
+window.input3.on("key", function(keyCode, event){
+    if(event.getAction() == event.ACTION_DOWN && keyCode == keys.back){
+        window.disableFocus();
+        event.consumed = true;
+    }
+});
+
+window.input3.on("touch_down", ()=>{
+    window.requestFocus();
+    window.input2.requestFocus();
+});
+
+window.input4.on("key", function(keyCode, event){
+    if(event.getAction() == event.ACTION_DOWN && keyCode == keys.back){
+        window.disableFocus();
+        event.consumed = true;
+    }
+});
+
+window.input4.on("touch_down", ()=>{
+    window.requestFocus();
+    window.input1.requestFocus();
+});
+
+window.ok.on("click", ()=>{
+    input1Content = window.input1.getText();
+    input2Content = window.input2.getText();
+    if(input1Content=="") input1Content = 10;
+    if(input2Content=="") input2Content = 200;
+    likeCount = input1Content;
+    likeInterval = input2Content;
+    window.disableFocus();
+    
+    dd = (dd==0?1:0);
+
+    log("输入框1的内容: " + likeCount);
+    log("输入框2的内容: " + likeInterval);
+});
+
+window.ok.on("long_click", ()=>{
+    window.setAdjustEnabled(!window.isAdjustEnabled());
+});
+
+window.remarkBtn.on("click", () => {
+    window.disableFocus();
+    inputContent = window.input3.getText();
+    remarkCounter = window.input4.getText();
+    if (inputContent == "") inputContent = "666";
+    if(remarkCounter < 1) remarkCounter = 1;
+    commentText = inputContent; // 设置评论的文本内容，根据需要修改
+    log(commentText);
+    state = 1;
+});
+
+window.reBtn.on("click",()=>{
+    window.disableFocus();
+    remarkCounter = window.input4.getText();
+    if(remarkCounter < 1) remarkCounter = 1;
+    Static = 1 ;
+});
+  
+
+
+window.closeBtn.on("click", ()=>{
+    window.close();
+    exit();
+});
+
+
+
+
+setInterval(()=>{
+    if(dd == 1)
+    {
+        var i = 0;
+        Count = Math.min(1000/likeInterval,likeCount);
+        for (; i < Count; i++) {
+            click(centerX, centerY);
+            click(centerX, centerY);
+            sleep(likeInterval);
+        }
+        likeCount -= i;
+        if(likeCount == 0) dd = 0;
+    }
+    else if(state == 1)
+    {
+        var liveTab = text("说点什么...").findOne();
+        click(liveTab.bounds().centerX(), liveTab.bounds().centerY());
+        state = 2;
+    }
+    else if(state == 2)
+    {
+        setText(commentText);
+        state = 3;
+    }
+    else if(state == 3)
+    {
+        var sendButton = text("发送").findOne();
+        click(sendButton.bounds().centerX(), sendButton.bounds().centerY());
+        state = 1;
+        remarkCounter--;
+        if(remarkCounter == 0) state = 0;
+    }
+    else if(Static == 1)
+    {
+        var liveTab = text("说点什么...").findOne();
+        click(liveTab.bounds().centerX(), liveTab.bounds().centerY());
+        Static = 2;
+    }
+    else if(Static == 2)
+    {
+        var rand=Math.floor(Math.random()*commentText_List.length);
+        setText(commentText_List[rand]);
+        Static = 3;
+    }
+    else if(Static == 3)
+    {
+        var sendButton = text("发送").findOne();
+        click(sendButton.bounds().centerX(), sendButton.bounds().centerY());
+        Static = 1;
+        remarkCounter--;
+        if(remarkCounter == 0) Static = 0;
+    }
+    
+}, 1000);
+
